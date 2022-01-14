@@ -8,12 +8,12 @@ class Player {
       x: 100,
       y: 100,
     };
-    this.width = 50;
+    this.width = 30;
     this.velocity = {
       x: 0,
       y: 0,
     };
-    this.height = 50;
+    this.height = 30;
     this.gravity = 1;
   }
 
@@ -53,28 +53,43 @@ class Platform {
 }
 
 let player = new Player();
-const platform = new Platform();
+let platforms = [new Platform()];
 function init() {
   requestAnimationFrame(init);
   c.clearRect(0, 0, canvas.width, canvas.height);
   player.update();
-  platform.draw();
-  if (
-    player.position.y + player.height <= platform.position.y &&
-    player.position.y + player.height + player.velocity.y >= platform.position.y
-  ) {
-    player.velocity.y = 0;
-  }
-  if (player.position.x >= platform.position.x + platform.width) {
-    player.position.y += player.velocity.y;
-  }
-  if (customkeys.right.pressed) {
-    player.velocity.x = 7;
-  } else if (customkeys.left.pressed) {
-    player.velocity.x = -7;
-  } else {
-    player.velocity.x = 0;
-  }
+  platforms.forEach((platform) => platform.draw());
+  //platform collision
+  platforms.forEach((platform) => {
+    if (
+      player.position.y + player.height <= platform.position.y &&
+      player.position.y + player.height + player.velocity.y >=
+        platform.position.y &&
+      player.position.x + player.width >= platform.position.x &&
+      player.position.x <= platform.position.x + platform.width
+    ) {
+      player.velocity.y = 0;
+    }
+    if (player.position.x >= platform.position.x + platform.width) {
+      player.position.y += player.velocity.y;
+    }
+    if (
+      customkeys.right.pressed &&
+      player.position.x + player.width < innerWidth / 2 - 300
+    ) {
+      player.velocity.x = 7;
+    } else if (customkeys.left.pressed && player.position.x > 100) {
+      player.velocity.x = -7;
+    } else {
+      player.velocity.x = 0;
+      //illusion of moving platforms
+      if (customkeys.right.pressed) {
+        platform.position.x -= 7;
+      } else if (customkeys.left.pressed) {
+        platform.position.x += 7;
+      }
+    }
+  });
 }
 const customkeys = {
   right: {
